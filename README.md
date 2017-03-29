@@ -1,4 +1,6 @@
-# dumpjs
+# DumpEnvy
+
+Based on ekazakov's [dumpjs](https://github.com/ekazakov/dumpjs)
 
 Sometimes you need serialize your objects to JSON and deserialize them back again. 
 But JSON stringify/parse is not enough, 
@@ -90,7 +92,3 @@ npm install --save dumpjs
 ```
 
 Works in node and browser.
-
-
-
-
