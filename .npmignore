@@ -34,5 +34,6 @@ node_modules
 
 # Src
 /src
-/test
+/tests
 /.*
+!/lib
