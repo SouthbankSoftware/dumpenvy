@@ -2,7 +2,7 @@
  * @Author: guiguan
  * @Date:   2017-03-29T11:04:43+11:00
  * @Last modified by:   guiguan
- * @Last modified time: 2017-03-29T12:17:31+11:00
+ * @Last modified time: 2017-03-29T12:25:12+11:00
  */
 
 export const isArray = Array.isArray;
@@ -15,7 +15,7 @@ export function isFunction(fn) {
   return typeof fn === 'function';
 }
 
-export function shellowClone(obj) {
+export function shallowClone(obj) {
   return isArray(obj) ? obj.slice() : merge({}, obj);
 }
 

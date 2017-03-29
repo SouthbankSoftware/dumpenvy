@@ -2,9 +2,14 @@
  * @Author: guiguan
  * @Date:   2017-03-29T11:04:43+11:00
  * @Last modified by:   guiguan
- * @Last modified time: 2017-03-29T12:16:54+11:00
+ * @Last modified time: 2017-03-29T14:28:14+11:00
  */
 
+import {
+  serializer as defaultSerializer,
+  deserializer as defaultDeserializer,
+  postDeserializer as defaultPostDeserializer,
+} from './extensions';
 import {
   isArray,
   getId,
@@ -12,18 +17,18 @@ import {
   isPrimitive,
   isFunction,
   createObjectHandler,
-  shellowClone,
+  shallowClone,
   keys,
   isObjectRef,
 } from './utils';
 
-function dump(root, options) {
+function dump(root, options = {}) {
   const serialized = {};
   const unprocessed = [];
   const identities = new Map();
   let id = 0;
   const key = getId(id);
-  const handler = createObjectHandler(options && options.serializer);
+  const handler = createObjectHandler(options.serializer || defaultSerializer);
 
   const serializer = function(key, value) {
     const result = handler(key, value);
@@ -56,7 +61,7 @@ function dump(root, options) {
     return function(result, item, index) {
       const prop = isArray(result) ? index : item;
 
-      obj = shellowClone(obj);
+      obj = shallowClone(obj);
       obj[prop] = serializer(prop, obj[prop]);
 
       if (isFunction(obj[prop])) return result;
@@ -89,9 +94,10 @@ function dump(root, options) {
   }
 }
 
-function restore(data, options) {
+function restore(data, options = {}) {
   const visited = new Set();
-  const handler = createObjectHandler(options && options.deserializer);
+  const handler = createObjectHandler(options.deserializer || defaultDeserializer);
+  const postDeserializer = options.postDeserializer || defaultPostDeserializer || (() => false);
   const source = JSON.parse(data);
   const keysList = keys(source);
 
@@ -108,6 +114,8 @@ function restore(data, options) {
 
   for (const item of visited) {
     if (item == null || isPrimitive(item) || Object.isFrozen(item)) continue;
+
+    if (postDeserializer(item, visited, deserializer) !== false) continue;
 
     if (item instanceof Map) {
       const mapEntries = [...item.entries()];

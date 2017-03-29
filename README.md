@@ -44,6 +44,9 @@ Valid JSON for deserialization
 `options.deserializer(key, value)` – custom deserialization
 - Memorizes received value and invocation result. For the same value always return the same result.
 
+`options.postDeserializer(item, visited, deserializer)` – custom post deserialization
+- Define custom logic to further deserialize deserialized `item`. More items generated at this post deserialization phase should be pushed to `visited` Set for further processing, which will feed into `postDeserializer` again. `deserializer` is the same process used in deserialization phase of given `item`. When an explicit `false` is returned, default post deserializers will be used
+
 ## Examples
 
 **Circular links**
