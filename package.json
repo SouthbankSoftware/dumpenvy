@@ -61,7 +61,7 @@
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-resolver": "^1.1.0",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
-    "babel-preset-es2015-node-auto": "^0.1.0",
+    "babel-preset-env": "^1.5.1",
     "babel-preset-stage-0": "^6.22.0",
     "chai": "^3.5.0",
     "concurrently": "^3.4.0",
