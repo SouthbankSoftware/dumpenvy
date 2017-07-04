@@ -6,11 +6,6 @@
  */
 
 import {
-  serializer as defaultSerializer,
-  deserializer as defaultDeserializer,
-  postDeserializer as defaultPostDeserializer,
-} from './extensions';
-import {
   isArray,
   getId,
   isPrimitiveProperty,
@@ -28,7 +23,7 @@ function dump(root, options = {}) {
   const identities = new Map();
   let id = 0;
   const key = getId(id);
-  const handler = createObjectHandler(options.serializer || defaultSerializer);
+  const handler = createObjectHandler(options.serializer);
 
   const serializer = function(key, value) {
     const result = handler(key, value);
@@ -96,8 +91,8 @@ function dump(root, options = {}) {
 
 function restore(data, options = {}) {
   const visited = new Set();
-  const handler = createObjectHandler(options.deserializer || defaultDeserializer);
-  const postDeserializer = options.postDeserializer || defaultPostDeserializer || (() => false);
+  const handler = createObjectHandler(options.deserializer);
+  const postDeserializer = options.postDeserializer || (() => false);
   const source = JSON.parse(data);
   const keysList = keys(source);
 

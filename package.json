@@ -64,6 +64,7 @@
     "babel-preset-env": "^1.5.1",
     "babel-preset-stage-0": "^6.22.0",
     "chai": "^3.5.0",
+    "codemirror": "^5.27.2",
     "concurrently": "^3.4.0",
     "deep-freeze-strict": "^1.1.1",
     "eslint": "^3.16.1",
