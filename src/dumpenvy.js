@@ -2,7 +2,7 @@
  * @Author: guiguan
  * @Date:   2017-03-29T11:04:43+11:00
  * @Last modified by:   guiguan
- * @Last modified time: 2017-03-29T14:28:14+11:00
+ * @Last modified time: 2017-12-20T15:14:14+11:00
  */
 
 import {
@@ -16,6 +16,18 @@ import {
   keys,
   isObjectRef,
 } from './utils';
+
+const NODUMP = '__nodump__';
+
+function nodump(target, key, descriptor) {
+  if (!target[NODUMP]) {
+    target[NODUMP] = [];
+  }
+
+  target[NODUMP].push(key);
+
+  return descriptor;
+}
 
 function dump(root, options = {}) {
   const serialized = {};
@@ -53,8 +65,12 @@ function dump(root, options = {}) {
   }
 
   function destruct(obj) {
+    const noDump = isArray(obj[NODUMP]) ? new Set(obj[NODUMP]) : null;
+
     return function(result, item, index) {
       const prop = isArray(result) ? index : item;
+
+      if (noDump && noDump.has(prop)) return result;
 
       obj = shallowClone(obj);
       obj[prop] = serializer(prop, obj[prop]);
@@ -100,9 +116,11 @@ function restore(data, options = {}) {
 
   keysList.forEach((key) => {
     const obj = source[key];
-    keys(obj).filter(key => isObjectRef(obj[key])).forEach((key) => {
-      obj[key] = source[obj[key]]; // deserializer(key, source[obj[key]]);
-    });
+    keys(obj)
+      .filter(key => isObjectRef(obj[key]))
+      .forEach((key) => {
+        obj[key] = source[obj[key]]; // deserializer(key, source[obj[key]]);
+      });
   });
 
   keys(source['@0']).forEach(createPropHandler(source['@0'], visited, deserializer));
@@ -172,4 +190,5 @@ function createPropHandler(item, visited, deserializer) {
 module.exports = {
   dump,
   restore,
+  nodump,
 };

@@ -2,7 +2,7 @@
  * @Author: guiguan
  * @Date:   2017-03-29T11:04:43+11:00
  * @Last modified by:   guiguan
- * @Last modified time: 2017-03-29T12:20:22+11:00
+ * @Last modified time: 2017-12-20T15:40:01+11:00
  */
 
 import { expect } from 'chai';
@@ -22,7 +22,7 @@ function dateDeserializer(key, value) {
 }
 
 function squeeze(str) {
-  return str.replace(/\s/ig, '');
+  return str.replace(/\s/gi, '');
 }
 
 function noop() {}
@@ -561,6 +561,53 @@ describe('Object litearals and arrays', () => {
       // console.log(obj);
       // expect(restore.j).to.be.equals(restore.j2);
       expect(restore).to.be.eql(obj);
+    });
+  });
+
+  describe('No Dump', () => {
+    it('__nodump__', () => {
+      const dumpedObj = JSON.stringify({
+        '@0': { a1: 1, a2: '@1' },
+        '@1': { b2: 3, __nodump__: '@2' },
+        '@2': ['b1'],
+      });
+
+      expect(
+        D.dump({
+          a1: 1,
+          a2: {
+            b1: 2,
+            b2: 3,
+            __nodump__: ['b1'],
+          },
+        }),
+      ).to.be.eql(dumpedObj);
+    });
+
+    it('@nodump decorator', () => {
+      const dumpedObj = JSON.stringify({
+        '@0': { a1: 1, a2: '@1' },
+        '@1': { b2: 3, __nodump__: '@2' },
+        '@2': ['b1'],
+      });
+
+      const nodump = D.nodump;
+
+      expect(
+        D.dump({
+          a1: 1,
+          a2: {
+            @nodump b1: 2,
+            b2: 3,
+          },
+        }),
+      ).to.be.eql(dumpedObj);
+    });
+
+    it('recovers __nodump__', () => {
+      expect(
+        D.restore('{"@0":{"a1":1,"a2":"@1"},"@1":{"b2":3,"__nodump__":"@2"},"@2":["b1"]}'),
+      ).to.deep.equal({ a1: 1, a2: { b2: 3, __nodump__: ['b1'] } });
     });
   });
 });
