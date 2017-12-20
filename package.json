@@ -1,7 +1,7 @@
 {
   "name": "dumpenvy",
   "fullName": "DumpEnvy",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Serialize and deserialize any JS objects to JSON",
   "main": "lib/",
   "keywords": [
