@@ -2,7 +2,7 @@
  * @Author: guiguan
  * @Date:   2017-03-29T11:04:43+11:00
  * @Last modified by:   guiguan
- * @Last modified time: 2017-12-20T15:14:14+11:00
+ * @Last modified time: 2018-07-16T13:23:52+10:00
  */
 
 import {
@@ -36,6 +36,7 @@ function dump(root, options = {}) {
   let id = 0;
   const key = getId(id);
   const handler = createObjectHandler(options.serializer);
+  const debug = Boolean(options.debug);
 
   const serializer = function(key, value) {
     const result = handler(key, value);
@@ -49,22 +50,22 @@ function dump(root, options = {}) {
 
   if (root == null) return;
 
-  serialized[key] = _dump(root, key);
+  serialized[key] = _dump(root, key, debug ? '' : undefined);
 
-  for (const [obj, identifier] of unprocessed) {
-    serialized[identifier] = _dump(obj, identifier);
+  for (const [obj, identifier, path] of unprocessed) {
+    serialized[identifier] = _dump(obj, identifier, path);
   }
 
   return JSON.stringify(serialized);
 
-  function _dump(obj, identifier) {
+  function _dump(obj, identifier, path) {
     if (!identities.has(obj)) identities.set(obj, identifier);
 
     const data = isArray(obj) ? obj : Object.keys(obj);
-    return data.reduce(destruct(obj), isArray(obj) ? [] : {});
+    return data.reduce(destruct(obj, path), isArray(obj) ? [] : {});
   }
 
-  function destruct(obj) {
+  function destruct(obj, path) {
     const noDump = isArray(obj[NODUMP]) ? new Set(obj[NODUMP]) : null;
 
     return function(result, item, index) {
@@ -79,16 +80,19 @@ function dump(root, options = {}) {
       if (obj[prop] === undefined) return result;
 
       if (isPrimitiveProperty(obj, prop)) {
+        if (debug) {
+          console.log(`${path ? `${path}.` : ''}${prop}`);
+        }
         result[prop] = obj[prop];
       } else {
-        result[prop] = generateObjId(obj, prop);
+        result[prop] = generateObjId(obj, prop, path);
       }
 
       return result;
     };
   }
 
-  function generateObjId(obj, prop) {
+  function generateObjId(obj, prop, path) {
     const value = obj[prop];
     let objId;
 
@@ -96,7 +100,12 @@ function dump(root, options = {}) {
       id += 1;
       objId = getId(id);
       identities.set(value, objId);
-      unprocessed.push([value, objId]);
+
+      if (debug) {
+        unprocessed.push([value, objId, `${path ? `${path}.` : ''}${prop}`]);
+      } else {
+        unprocessed.push([value, objId]);
+      }
     } else {
       objId = identities.get(value);
     }
